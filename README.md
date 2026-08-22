@@ -35,7 +35,7 @@ Este repositório contém os **Incrementos 1 - Fundação, 2 - Estoque, 3 - Vend
 - prontidão que valida SQL Server e RabbitMQ;
 - cabeçalhos defensivos, limite de corpo e remoção do cabeçalho `Server`;
 - teste de carga k6 com thresholds objetivos;
-- audit de dependÃªncias, build de imagens no CI e atualizações automatizadas;
+- audit de dependências, build de imagens no CI e atualizações automatizadas;
 - manifests Kubernetes endurecidos e runbook operacional.
 
 ## Pré-requisitos
