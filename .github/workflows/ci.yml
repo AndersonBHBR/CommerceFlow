@@ -28,7 +28,7 @@ jobs:
         run: dotnet build CommerceFlow.slnx --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test CommerceFlow.slnx --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory TestResults
+        run: dotnet test --solution CommerceFlow.slnx --configuration Release --no-build --results-directory TestResults
 
       - name: Validate Compose
         run: docker compose --env-file .env.example config --quiet

@@ -21,3 +21,6 @@ dotnet_style_require_accessibility_modifiers = always:warning
 dotnet_style_readonly_field = true:warning
 dotnet_style_prefer_collection_expression = true:suggestion
 csharp_style_prefer_primary_constructors = true:suggestion
+
+[tests/**/*.cs]
+dotnet_diagnostic.CA1707.severity = none
