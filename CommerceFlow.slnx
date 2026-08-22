@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="docker-compose.yml" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="src/BuildingBlocks/CommerceFlow.ServiceDefaults/CommerceFlow.ServiceDefaults.csproj" />
+  <Project Path="src/Contracts/CommerceFlow.Contracts/CommerceFlow.Contracts.csproj" />
+  <Project Path="src/Gateway/CommerceFlow.Gateway/CommerceFlow.Gateway.csproj" />
+  <Project Path="src/Identity/CommerceFlow.Identity.Api/CommerceFlow.Identity.Api.csproj" />
+  <Project Path="src/Sales/Sales.Domain/Sales.Domain.csproj" />
+  <Project Path="src/Sales/Sales.Application/Sales.Application.csproj" />
+  <Project Path="src/Sales/Sales.Infrastructure/Sales.Infrastructure.csproj" />
+  <Project Path="src/Sales/Sales.Api/Sales.Api.csproj" />
+  <Project Path="src/Inventory/Inventory.Domain/Inventory.Domain.csproj" />
+  <Project Path="src/Inventory/Inventory.Application/Inventory.Application.csproj" />
+  <Project Path="src/Inventory/Inventory.Infrastructure/Inventory.Infrastructure.csproj" />
+  <Project Path="src/Inventory/Inventory.Api/Inventory.Api.csproj" />
+  <Project Path="tests/UnitTests/CommerceFlow.UnitTests.csproj" />
+  <Project Path="tests/ArchitectureTests/CommerceFlow.ArchitectureTests.csproj" />
+</Solution>

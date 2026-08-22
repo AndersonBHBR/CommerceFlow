@@ -1,0 +1,330 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: gateway
+          image: ghcr.io/seu-usuario/commerceflow-gateway:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: commerceflow-config
+          env:
+            - name: Jwt__SigningKey
+              valueFrom:
+                secretKeyRef:
+                  name: commerceflow-secrets
+                  key: Jwt__SigningKey
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+spec:
+  type: LoadBalancer
+  selector:
+    app: gateway
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: identity
+  template:
+    metadata:
+      labels:
+        app: identity
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: identity
+          image: ghcr.io/seu-usuario/commerceflow-identity:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: commerceflow-config
+          env:
+            - name: Jwt__SigningKey
+              valueFrom:
+                secretKeyRef:
+                  name: commerceflow-secrets
+                  key: Jwt__SigningKey
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity
+spec:
+  selector:
+    app: identity
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sales
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sales
+  template:
+    metadata:
+      labels:
+        app: sales
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: sales
+          image: ghcr.io/seu-usuario/commerceflow-sales:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: commerceflow-config
+          env:
+            - name: Jwt__SigningKey
+              valueFrom:
+                secretKeyRef:
+                  name: commerceflow-secrets
+                  key: Jwt__SigningKey
+            - name: RabbitMq__Password
+              valueFrom:
+                secretKeyRef:
+                  name: commerceflow-secrets
+                  key: RabbitMq__Password
+            - name: ConnectionStrings__SalesDatabase
+              valueFrom:
+                secretKeyRef:
+                  name: commerceflow-secrets
+                  key: ConnectionStrings__SalesDatabase
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sales
+spec:
+  selector:
+    app: sales
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: inventory
+  template:
+    metadata:
+      labels:
+        app: inventory
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: inventory
+          image: ghcr.io/seu-usuario/commerceflow-inventory:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: commerceflow-config
+          env:
+            - name: Jwt__SigningKey
+              valueFrom:
+                secretKeyRef:
+                  name: commerceflow-secrets
+                  key: Jwt__SigningKey
+            - name: RabbitMq__Password
+              valueFrom:
+                secretKeyRef:
+                  name: commerceflow-secrets
+                  key: RabbitMq__Password
+            - name: ConnectionStrings__InventoryDatabase
+              valueFrom:
+                secretKeyRef:
+                  name: commerceflow-secrets
+                  key: ConnectionStrings__InventoryDatabase
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory
+spec:
+  selector:
+    app: inventory
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

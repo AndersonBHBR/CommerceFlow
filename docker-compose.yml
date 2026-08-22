@@ -1,0 +1,182 @@
+name: commerceflow
+
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: src/Gateway/CommerceFlow.Gateway/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      Jwt__Issuer: commerceflow.identity
+      Jwt__Audience: commerceflow.apis
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Execute scripts/bootstrap.ps1 primeiro}
+      ReverseProxy__Clusters__identity__Destinations__primary__Address: http://identity:8080
+      ReverseProxy__Clusters__sales__Destinations__primary__Address: http://sales:8080
+      ReverseProxy__Clusters__inventory__Destinations__primary__Address: http://inventory:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire-dashboard:18889
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      OTEL_RESOURCE_ATTRIBUTES: deployment.environment=local,service.namespace=commerceflow
+    ports:
+      - "8080:8080"
+    depends_on:
+      - identity
+      - sales
+      - inventory
+      - aspire-dashboard
+    networks:
+      - commerceflow
+
+  identity:
+    build:
+      context: .
+      dockerfile: src/Identity/CommerceFlow.Identity.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      Jwt__Issuer: commerceflow.identity
+      Jwt__Audience: commerceflow.apis
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Execute scripts/bootstrap.ps1 primeiro}
+      Jwt__ExpirationMinutes: 30
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire-dashboard:18889
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      OTEL_RESOURCE_ATTRIBUTES: deployment.environment=local,service.namespace=commerceflow
+    ports:
+      - "8081:8080"
+    networks:
+      - commerceflow
+    depends_on:
+      - aspire-dashboard
+
+  sales:
+    build:
+      context: .
+      dockerfile: src/Sales/Sales.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      Jwt__Issuer: commerceflow.identity
+      Jwt__Audience: commerceflow.apis
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Execute scripts/bootstrap.ps1 primeiro}
+      ConnectionStrings__SalesDatabase: Server=sales-db,1433;Database=CommerceFlowSales;User Id=sa;Password=${SQL_SA_PASSWORD:?Execute scripts/bootstrap.ps1 primeiro};Encrypt=True;TrustServerCertificate=True
+      Services__InventoryBaseUrl: http://inventory:8080/
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Username: ${RABBITMQ_USER:-commerceflow}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD:?Execute scripts/bootstrap.ps1 primeiro}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire-dashboard:18889
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      OTEL_RESOURCE_ATTRIBUTES: deployment.environment=local,service.namespace=commerceflow
+    ports:
+      - "8082:8080"
+    depends_on:
+      - sales-db
+      - rabbitmq
+      - aspire-dashboard
+    restart: on-failure
+    networks:
+      - commerceflow
+
+  inventory:
+    build:
+      context: .
+      dockerfile: src/Inventory/Inventory.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      Jwt__Issuer: commerceflow.identity
+      Jwt__Audience: commerceflow.apis
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Execute scripts/bootstrap.ps1 primeiro}
+      ConnectionStrings__InventoryDatabase: Server=inventory-db,1433;Database=CommerceFlowInventory;User Id=sa;Password=${SQL_SA_PASSWORD:?Execute scripts/bootstrap.ps1 primeiro};Encrypt=True;TrustServerCertificate=True
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Username: ${RABBITMQ_USER:-commerceflow}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD:?Execute scripts/bootstrap.ps1 primeiro}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire-dashboard:18889
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      OTEL_RESOURCE_ATTRIBUTES: deployment.environment=local,service.namespace=commerceflow
+    ports:
+      - "8083:8080"
+    depends_on:
+      - inventory-db
+      - rabbitmq
+      - aspire-dashboard
+    restart: on-failure
+    networks:
+      - commerceflow
+
+  sales-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: ${SQL_SA_PASSWORD:?Execute scripts/bootstrap.ps1 primeiro}
+    ports:
+      - "14331:1433"
+    volumes:
+      - sales-db-data:/var/opt/mssql
+    networks:
+      - commerceflow
+
+  inventory-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: ${SQL_SA_PASSWORD:?Execute scripts/bootstrap.ps1 primeiro}
+    ports:
+      - "14332:1433"
+    volumes:
+      - inventory-db-data:/var/opt/mssql
+    networks:
+      - commerceflow
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-commerceflow}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?Execute scripts/bootstrap.ps1 primeiro}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - commerceflow
+
+  aspire-dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:13
+    environment:
+      ASPNETCORE_URLS: http://+:18888
+      DOTNET_DASHBOARD_OTLP_ENDPOINT_URL: http://+:18889
+      DOTNET_DASHBOARD_OTLP_HTTP_ENDPOINT_URL: http://+:18890
+      ASPIRE_DASHBOARD_TELEMETRY_OPTOUT: "true"
+    ports:
+      - "18888:18888"
+    restart: unless-stopped
+    networks:
+      - commerceflow
+
+  load-test:
+    image: grafana/k6:2.2.0
+    profiles:
+      - load
+    environment:
+      GATEWAY_URL: http://gateway:8080
+      IDENTITY_URL: http://identity:8080
+      SALES_URL: http://sales:8080
+      INVENTORY_URL: http://inventory:8080
+    volumes:
+      - ./tests/load:/scripts:ro
+    command: run /scripts/commerceflow-smoke.js
+    depends_on:
+      - gateway
+    networks:
+      - commerceflow
+
+networks:
+  commerceflow:
+    driver: bridge
+
+volumes:
+  sales-db-data:
+  inventory-db-data:
+  rabbitmq-data:

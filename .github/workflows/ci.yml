@@ -1,0 +1,53 @@
+name: commerceflow-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore CommerceFlow.slnx -p:NuGetAudit=true -p:NuGetAuditMode=all
+
+      - name: Build
+        run: dotnet build CommerceFlow.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test CommerceFlow.slnx --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory TestResults
+
+      - name: Validate Compose
+        run: docker compose --env-file .env.example config --quiet
+
+      - name: Build container images
+        run: |
+          docker compose --env-file .env.example build gateway
+          docker compose --env-file .env.example build identity
+          docker compose --env-file .env.example build inventory
+          docker compose --env-file .env.example build sales
+
+      - name: Inventory vulnerable dependencies
+        run: dotnet list CommerceFlow.slnx package --vulnerable --include-transitive
+
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults
+          if-no-files-found: ignore
+          retention-days: 14
