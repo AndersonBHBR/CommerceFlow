@@ -25,3 +25,37 @@ export type ApiProblem = {
   status?: number;
   traceId?: string;
 };
+
+export type Product = {
+  id: string;
+  sku: string;
+  name: string;
+  isActive: boolean;
+  availableQuantity: number;
+  reservedQuantity: number;
+  freeQuantity: number;
+  rowVersion: string;
+};
+
+export type StockAdjustment = {
+  id: string;
+  productId: string;
+  quantity: number;
+  reason: string;
+  performedBy: string;
+  externalReference: string | null;
+  occurredAtUtc: string;
+};
+
+export type StockAdjustmentCreated = {
+  adjustment: StockAdjustment;
+  product: Product;
+};
+
+export type PagedResult<T> = {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+};

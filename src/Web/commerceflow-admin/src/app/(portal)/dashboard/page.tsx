@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowIcon, BoxIcon, OrdersIcon } from "@/components/icons";
 import { ServiceStatusCard } from "@/components/service-status-card";
 import { getPlatformHealth } from "@/lib/commerceflow-api";
@@ -84,7 +85,7 @@ export default async function DashboardPage() {
             <span className="section-index">02</span>
             <h2>Módulos operacionais</h2>
           </div>
-          <span className="section-note">próximas entregas do incremento</span>
+          <span className="section-note">acessos por domínio</span>
         </div>
 
         <div className="module-grid">
@@ -93,15 +94,15 @@ export default async function DashboardPage() {
               <BoxIcon />
             </span>
             <div>
-              <span className="module-state">Preparado para integração</span>
+              <span className="module-state">Integrado ao Gateway</span>
               <h3>Gestão de estoque</h3>
               <p>
                 Produtos, saldos livres, reservas e histórico de movimentações.
               </p>
             </div>
-            <span className="module-action">
-              Próximo módulo <ArrowIcon />
-            </span>
+            <Link className="module-action" href="/estoque">
+              Abrir módulo <ArrowIcon />
+            </Link>
           </article>
 
           <article className="module-card">

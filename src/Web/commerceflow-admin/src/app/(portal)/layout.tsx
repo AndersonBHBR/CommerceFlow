@@ -1,13 +1,7 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Brand } from "@/components/brand";
-import {
-  ActivityIcon,
-  BoxIcon,
-  DashboardIcon,
-  OrdersIcon,
-} from "@/components/icons";
 import { LogoutButton } from "@/components/logout-button";
+import { PortalNav } from "@/components/portal-nav";
 import { getCurrentUser } from "@/lib/auth";
 
 export default async function PortalLayout({
@@ -25,29 +19,7 @@ export default async function PortalLayout({
       <aside className="sidebar">
         <Brand />
 
-        <nav className="primary-nav" aria-label="Navegação principal">
-          <span className="nav-caption">Operação</span>
-          <Link href="/dashboard">
-            <DashboardIcon />
-            <span>Visão geral</span>
-          </Link>
-          <span className="nav-item-disabled" aria-disabled="true">
-            <BoxIcon />
-            <span>Estoque</span>
-            <small>em breve</small>
-          </span>
-          <span className="nav-item-disabled" aria-disabled="true">
-            <OrdersIcon />
-            <span>Pedidos</span>
-            <small>em breve</small>
-          </span>
-
-          <span className="nav-caption nav-caption-spaced">Plataforma</span>
-          <a href="http://localhost:18888" target="_blank" rel="noreferrer">
-            <ActivityIcon />
-            <span>Observabilidade</span>
-          </a>
-        </nav>
+        <PortalNav />
 
         <div className="sidebar-footer">
           <div className="user-summary">
@@ -69,6 +41,7 @@ export default async function PortalLayout({
             <LogoutButton />
           </div>
         </header>
+        <PortalNav mobile />
         {children}
       </div>
     </div>

@@ -11,6 +11,18 @@ Portal administrativo do CommerceFlow desenvolvido com Next.js 16, App Router e 
 - layout responsivo e estados de indisponibilidade;
 - configuração `standalone` preparada para Docker.
 
+## Incremento 6.2
+
+- módulo de Estoque integrado ao Gateway;
+- listagem, pesquisa e paginação de produtos;
+- cadastro e edição com validação de domínio;
+- atualização protegida por `rowVersion`;
+- entradas e saídas de estoque com saldo projetado;
+- histórico auditável de movimentações;
+- BFF para manter o JWT fora do JavaScript do navegador;
+- estados de carregamento, ausência de dados, erro e sucesso;
+- navegação responsiva para desktop e dispositivos móveis.
+
 ## Executar
 
 Com o backend CommerceFlow ativo:
