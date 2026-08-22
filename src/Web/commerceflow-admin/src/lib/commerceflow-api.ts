@@ -1,0 +1,99 @@
+import type { ApiProblem, ServiceHealth } from "@/lib/contracts";
+
+const gatewayUrl = process.env.COMMERCEFLOW_GATEWAY_URL ?? "http://localhost:8080";
+
+const serviceDefinitions = [
+  {
+    key: "gateway",
+    name: "API Gateway",
+    description: "Entrada única, autorização e rate limiting",
+    url: gatewayUrl,
+  },
+  {
+    key: "identity",
+    name: "Identity",
+    description: "Emissão e validação de credenciais JWT",
+    url: process.env.COMMERCEFLOW_IDENTITY_URL ?? "http://localhost:8081",
+  },
+  {
+    key: "sales",
+    name: "Vendas",
+    description: "Pedidos, idempotência e fluxo de cancelamento",
+    url: process.env.COMMERCEFLOW_SALES_URL ?? "http://localhost:8082",
+  },
+  {
+    key: "inventory",
+    name: "Estoque",
+    description: "Produtos, saldos, reservas e movimentações",
+    url: process.env.COMMERCEFLOW_INVENTORY_URL ?? "http://localhost:8083",
+  },
+] as const;
+
+export function gatewayEndpoint(path: string): string {
+  const normalizedBase = gatewayUrl.endsWith("/") ? gatewayUrl : `${gatewayUrl}/`;
+  return new URL(path.replace(/^\//, ""), normalizedBase).toString();
+}
+
+export async function gatewayFetch(
+  path: string,
+  token: string,
+  init: RequestInit = {},
+): Promise<Response> {
+  const headers = new Headers(init.headers);
+  headers.set("Accept", "application/json");
+  headers.set("Authorization", `Bearer ${token}`);
+
+  return fetch(gatewayEndpoint(path), {
+    ...init,
+    headers,
+    cache: "no-store",
+  });
+}
+
+export async function readProblem(response: Response): Promise<ApiProblem> {
+  try {
+    return (await response.json()) as ApiProblem;
+  } catch {
+    return {
+      status: response.status,
+      title: "Falha de comunicação",
+      detail: "O serviço não retornou uma resposta no formato esperado.",
+    };
+  }
+}
+
+async function checkService(
+  definition: (typeof serviceDefinitions)[number],
+): Promise<ServiceHealth> {
+  const startedAt = performance.now();
+
+  try {
+    const baseUrl = definition.url.endsWith("/")
+      ? definition.url
+      : `${definition.url}/`;
+    const response = await fetch(new URL("health/live", baseUrl), {
+      cache: "no-store",
+      signal: AbortSignal.timeout(2500),
+    });
+
+    return {
+      key: definition.key,
+      name: definition.name,
+      description: definition.description,
+      status: response.ok ? "operational" : "unavailable",
+      latencyMs: Math.max(1, Math.round(performance.now() - startedAt)),
+    };
+  } catch {
+    return {
+      key: definition.key,
+      name: definition.name,
+      description: definition.description,
+      status: "unavailable",
+      latencyMs: null,
+    };
+  }
+}
+
+export async function getPlatformHealth(): Promise<ServiceHealth[]> {
+  return Promise.all(serviceDefinitions.map(checkService));
+}
