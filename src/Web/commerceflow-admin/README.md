@@ -37,6 +37,18 @@ Portal administrativo do CommerceFlow desenvolvido com Next.js 16, App Router e 
 - cancelamento com `rowVersion` e liberação compensatória via RabbitMQ;
 - BFF compartilhado para manter o JWT protegido.
 
+## Incremento 6.4
+
+- centro operacional de observabilidade integrado ao portal;
+- leitura combinada de liveness e readiness dos quatro serviços;
+- classificação automática entre operacional, degradado e indisponível;
+- latência instantânea e atualização automática configurável;
+- BFF autenticado para centralizar as consultas sem expor o JWT ao cliente;
+- objetivos de SLO apresentados separadamente das métricas instantâneas;
+- acessos rápidos ao Aspire Dashboard e ao RabbitMQ Management;
+- diagnóstico guiado baseado no runbook operacional;
+- navegação responsiva para acompanhamento em desktop e dispositivos móveis.
+
 ## Executar
 
 Com o backend CommerceFlow ativo:

@@ -27,6 +27,13 @@ export function PortalNav({ mobile = false }: { mobile?: boolean }) {
           <OrdersIcon />
           Pedidos
         </Link>
+        <Link
+          href="/observabilidade"
+          className={pathname.startsWith("/observabilidade") ? "active" : ""}
+        >
+          <ActivityIcon />
+          Saúde
+        </Link>
       </nav>
     );
   }
@@ -48,10 +55,13 @@ export function PortalNav({ mobile = false }: { mobile?: boolean }) {
       </Link>
 
       <span className="nav-caption nav-caption-spaced">Plataforma</span>
-      <a href="http://localhost:18888" target="_blank" rel="noreferrer">
+      <Link
+        href="/observabilidade"
+        className={pathname.startsWith("/observabilidade") ? "active" : ""}
+      >
         <ActivityIcon />
         <span>Observabilidade</span>
-      </a>
+      </Link>
     </nav>
   );
 }

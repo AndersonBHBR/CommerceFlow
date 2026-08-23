@@ -1,4 +1,10 @@
-import type { ApiProblem, ServiceHealth } from "@/lib/contracts";
+import type {
+  ApiProblem,
+  HealthProbe,
+  ObservabilitySnapshot,
+  ServiceHealth,
+  ServiceObservation,
+} from "@/lib/contracts";
 
 const gatewayUrl = process.env.COMMERCEFLOW_GATEWAY_URL ?? "http://localhost:8080";
 
@@ -96,4 +102,66 @@ async function checkService(
 
 export async function getPlatformHealth(): Promise<ServiceHealth[]> {
   return Promise.all(serviceDefinitions.map(checkService));
+}
+
+async function checkHealthEndpoint(
+  baseUrl: string,
+  endpoint: "health/live" | "health/ready",
+): Promise<HealthProbe> {
+  const startedAt = performance.now();
+
+  try {
+    const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+    const response = await fetch(new URL(endpoint, normalizedBase), {
+      cache: "no-store",
+      signal: AbortSignal.timeout(2500),
+    });
+
+    return {
+      status: response.ok ? "operational" : "unavailable",
+      latencyMs: Math.max(1, Math.round(performance.now() - startedAt)),
+      httpStatus: response.status,
+    };
+  } catch {
+    return {
+      status: "unavailable",
+      latencyMs: null,
+      httpStatus: null,
+    };
+  }
+}
+
+async function observeService(
+  definition: (typeof serviceDefinitions)[number],
+): Promise<ServiceObservation> {
+  const [liveness, readiness] = await Promise.all([
+    checkHealthEndpoint(definition.url, "health/live"),
+    checkHealthEndpoint(definition.url, "health/ready"),
+  ]);
+
+  const state =
+    liveness.status === "unavailable"
+      ? "unavailable"
+      : readiness.status === "unavailable"
+        ? "degraded"
+        : "operational";
+
+  return {
+    key: definition.key,
+    name: definition.name,
+    description: definition.description,
+    endpointUrl: definition.url.replace(/\/$/, ""),
+    state,
+    liveness,
+    readiness,
+  };
+}
+
+export async function getPlatformObservability(): Promise<ObservabilitySnapshot> {
+  const services = await Promise.all(serviceDefinitions.map(observeService));
+
+  return {
+    services,
+    checkedAtUtc: new Date().toISOString(),
+  };
 }

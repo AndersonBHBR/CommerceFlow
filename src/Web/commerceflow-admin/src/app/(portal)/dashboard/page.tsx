@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { ArrowIcon, BoxIcon, OrdersIcon } from "@/components/icons";
+import {
+  ActivityIcon,
+  ArrowIcon,
+  BoxIcon,
+  OrdersIcon,
+} from "@/components/icons";
 import { ServiceStatusCard } from "@/components/service-status-card";
 import { getPlatformHealth } from "@/lib/commerceflow-api";
 
@@ -117,6 +122,22 @@ export default async function DashboardPage() {
               </p>
             </div>
             <Link className="module-action" href="/pedidos">
+              Abrir módulo <ArrowIcon />
+            </Link>
+          </article>
+
+          <article className="module-card">
+            <span className="module-icon module-icon-blue">
+              <ActivityIcon />
+            </span>
+            <div>
+              <span className="module-state">Monitoramento operacional</span>
+              <h3>Observabilidade</h3>
+              <p>
+                Liveness, readiness, latência instantânea, SLOs e diagnóstico.
+              </p>
+            </div>
+            <Link className="module-action" href="/observabilidade">
               Abrir módulo <ArrowIcon />
             </Link>
           </article>

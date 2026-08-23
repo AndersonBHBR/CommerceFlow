@@ -175,3 +175,32 @@ export function TrashIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function ExternalLinkIcon(props: IconProps) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M14 4h6v6M20 4l-9 9" />
+      <path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6" />
+    </svg>
+  );
+}
+
+export function DatabaseIcon(props: IconProps) {
+  return (
+    <svg {...baseProps} {...props}>
+      <ellipse cx="12" cy="5" rx="8" ry="3" />
+      <path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5" />
+      <path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6" />
+    </svg>
+  );
+}
+
+export function QueueIcon(props: IconProps) {
+  return (
+    <svg {...baseProps} {...props}>
+      <rect x="3" y="4" width="18" height="5" rx="1" />
+      <rect x="3" y="15" width="18" height="5" rx="1" />
+      <path d="M8 9v6M16 9v6" />
+    </svg>
+  );
+}

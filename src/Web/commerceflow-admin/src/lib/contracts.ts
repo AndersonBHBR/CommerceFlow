@@ -19,6 +19,27 @@ export type ServiceHealth = {
   latencyMs: number | null;
 };
 
+export type HealthProbe = {
+  status: "operational" | "unavailable";
+  latencyMs: number | null;
+  httpStatus: number | null;
+};
+
+export type ServiceObservation = {
+  key: ServiceHealth["key"];
+  name: string;
+  description: string;
+  endpointUrl: string;
+  state: "operational" | "degraded" | "unavailable";
+  liveness: HealthProbe;
+  readiness: HealthProbe;
+};
+
+export type ObservabilitySnapshot = {
+  services: ServiceObservation[];
+  checkedAtUtc: string;
+};
+
 export type ApiProblem = {
   title?: string;
   detail?: string;
