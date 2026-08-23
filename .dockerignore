@@ -1,5 +1,8 @@
 **/bin
 **/obj
+**/node_modules
+**/.next
+**/.env.local
 .git
 .github
 .env
@@ -8,3 +11,4 @@
 TestResults
 coverage
 artifacts
+npm-debug.log*

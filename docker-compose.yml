@@ -155,6 +155,45 @@ services:
     networks:
       - commerceflow
 
+  admin:
+    build:
+      context: .
+      dockerfile: src/Web/commerceflow-admin/Dockerfile
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: "1"
+      COMMERCEFLOW_GATEWAY_URL: http://gateway:8080
+      COMMERCEFLOW_IDENTITY_URL: http://identity:8080
+      COMMERCEFLOW_SALES_URL: http://sales:8080
+      COMMERCEFLOW_INVENTORY_URL: http://inventory:8080
+      COMMERCEFLOW_COOKIE_SECURE: "false"
+      COMMERCEFLOW_GATEWAY_PUBLIC_URL: http://localhost:8080
+      COMMERCEFLOW_IDENTITY_PUBLIC_URL: http://localhost:8081
+      COMMERCEFLOW_SALES_PUBLIC_URL: http://localhost:8082
+      COMMERCEFLOW_INVENTORY_PUBLIC_URL: http://localhost:8083
+      ASPIRE_DASHBOARD_PUBLIC_URL: http://localhost:18888
+      RABBITMQ_MANAGEMENT_PUBLIC_URL: http://localhost:15672
+    ports:
+      - "3000:3000"
+    depends_on:
+      - gateway
+      - identity
+      - sales
+      - inventory
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:3000/api/health/live').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - commerceflow
+
   load-test:
     image: grafana/k6:2.2.0
     profiles:

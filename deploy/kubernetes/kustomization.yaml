@@ -5,3 +5,4 @@ resources:
   - namespace.yaml
   - configmap.yaml
   - workloads.yaml
+  - admin.yaml
