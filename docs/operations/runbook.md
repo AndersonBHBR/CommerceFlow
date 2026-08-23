@@ -9,6 +9,8 @@ docker compose ps
 
 Espere Sales e Inventory concluírem as migrations de desenvolvimento. Em seguida, execute `scripts/test-increment5.ps1`.
 
+O Compose também inicia o portal administrativo em `http://localhost:3000`. Depois que o contêiner `admin` estiver saudável, execute `scripts/test-increment6.ps1` para validar sessão, BFF e integrações.
+
 ## Observabilidade local
 
 1. Gere tráfego executando o teste do Incremento 5.
@@ -29,6 +31,9 @@ O painel local não é uma solução de retenção. Em produção, encaminhe OTL
 | DLQ cresce | RabbitMQ Management, routing key e erro estruturado | isole a mensagem, valide schema e faça replay controlado |
 | Trace não aparece | variáveis `OTEL_EXPORTER_OTLP_*` e log do dashboard | valide DNS/porta 18889 dentro da rede Compose |
 | Latência sobe | p95 HTTP e spans de dependências | confirme SQL, Inventory e circuit breaker antes de escalar |
+| Portal não fica saudável | `docker compose logs admin` e `/api/health/live` | valide a imagem standalone, a porta 3000 e as variáveis internas dos serviços |
+| Login do portal responde 503 | conectividade `admin` → `gateway:8080` | confirme o Gateway e `COMMERCEFLOW_GATEWAY_URL`; não exponha o JWT no cliente |
+| Links operacionais não abrem | variáveis `*_PUBLIC_URL` do portal | use URLs acessíveis pelo navegador, diferentes das URLs internas do BFF |
 
 ## Teste de carga
 
@@ -46,6 +51,8 @@ O cenário primeiro valida o Gateway e depois usa dez usuários virtuais por 30 
 4. Execute migrations como job controlado antes de liberar a nova versão. Em `Production`, as APIs não executam migrations automaticamente.
 5. Valide com `kubectl kustomize deploy/kubernetes` e aplique em um namespace de homologação.
 6. Só promova após probes, smoke test, métricas e rollback terem sido verificados.
+
+O manifesto `admin.yaml` usa cookie seguro e Ingress TLS. Substitua os domínios `.example`, a imagem e o segredo `commerceflow-portal-tls` por recursos gerenciados do ambiente antes da aplicação.
 
 ## Rollback
 

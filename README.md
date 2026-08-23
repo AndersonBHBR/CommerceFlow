@@ -1,14 +1,14 @@
 # CommerceFlow
 
-Assessment de microsserviços em .NET 10, criado como projeto de portólio independente para demonstrar arquitetura, segurança, consistência eventual e engenharia de produção.
+Assessment de microsserviços em .NET 10, criado como projeto de portfólio independente para demonstrar arquitetura, segurança, consistência eventual e engenharia de produção.
 
 ## Estado atual
 
-Este repositório contém os **Incrementos 1 - Fundação, 2 - Estoque, 3 - Vendas, 4 - Mensageria confiável e 5 - Engenharia de produção**:
+Este repositório contém os **Incrementos 1 — Fundação, 2 — Estoque, 3 — Vendas, 4 — Mensageria confiável, 5 — Engenharia de produção e 6 — Portal administrativo**:
 
-- solução `.slnx`, build determiní­stico e gerenciamento central de pacotes;
+- solução `.slnx`, build determinístico e gerenciamento central de pacotes;
 - API Gateway com YARP, JWT, autorização por rota, rate limiting e correlação;
-- Identity API substituÃ­vel, com usuários sintáticos e senhas persistidas por PBKDF2;
+- Identity API substituível, com usuários sintéticos e senhas persistidas por PBKDF2;
 - limites de Sales e Inventory em Domain, Application, Infrastructure e API;
 - SQL Server isolado por serviço e RabbitMQ provisionado pelo Compose;
 - liveness, readiness, Problem Details e logs JSON estruturados;
@@ -37,11 +37,18 @@ Este repositório contém os **Incrementos 1 - Fundação, 2 - Estoque, 3 - Vend
 - teste de carga k6 com thresholds objetivos;
 - audit de dependências, build de imagens no CI e atualizações automatizadas;
 - manifests Kubernetes endurecidos e runbook operacional.
+- portal administrativo em Next.js 16 com BFF e cookie JWT `HttpOnly`;
+- módulos de Estoque, Pedidos e Observabilidade integrados ao Gateway;
+- imagem standalone não-root, health check, CSP e execução pelo Compose;
+- pipeline com lint, build, audit e construção da imagem do frontend;
+- smoke test autenticado e manifests Kubernetes próprios do portal.
 
 ## Pré-requisitos
 
 - Docker Desktop com Docker Compose; ou
-- .NET SDK 10 e duas instâncias acessí­veis de SQL Server.
+- .NET SDK 10 e duas instâncias acessíveis de SQL Server.
+
+Para desenvolvimento isolado do portal, também é necessário Node.js 22.
 
 ## Subir todo o ambiente no Windows
 
@@ -61,6 +68,7 @@ O script cria `.env` com segredos locais aleatórios, constrói as imagens e ini
 | Identity direta | `http://localhost:8081` |
 | Sales direta | `http://localhost:8082` |
 | Inventory direta | `http://localhost:8083` |
+| Portal administrativo | `http://localhost:3000` |
 | RabbitMQ Management | `http://localhost:15672` |
 | Aspire Dashboard | `http://localhost:18888` |
 | Sales SQL Server | `localhost,14331` |
@@ -68,9 +76,11 @@ O script cria `.env` com segredos locais aleatórios, constrói as imagens e ini
 
 Health checks: `/health/live` e `/health/ready`. OpenAPI: `/openapi/v1.json`.
 
+O portal publica seu próprio liveness em `http://localhost:3000/api/health/live`.
+
 ## Obter um token
 
-Os três usuários de demonstração utilizam a senha sintática `CommerceFlow#2026`:
+Os três usuários de demonstração utilizam a senha sintética `CommerceFlow#2026`:
 
 | Login | Papel |
 |---|---|
@@ -85,6 +95,8 @@ Invoke-RestMethod -Method Post -Uri 'http://localhost:8080/api/v1/auth/token' -C
 
 Os hashes e salts PBKDF2 ficam no arquivo de configuração de desenvolvimento; a senha não é persistida pela aplicação.
 
+Para acessar o portal, use `admin@commerceflow.local` e a mesma senha sintética. O BFF mantém o JWT em cookie `HttpOnly`; o navegador não recebe o token em JSON nem o persiste em `localStorage`.
+
 ## Desenvolvimento sem Docker
 
 ```powershell
@@ -97,11 +109,11 @@ Defina `Jwt__SigningKey` e as connection strings por User Secrets ou variáveis 
 
 ## Limites arquiteturais
 
-- `Domain` não referencia Application, Infrastructure, APIs ou outro domí­nio.
+- `Domain` não referencia Application, Infrastructure, APIs ou outro domínio.
 - `Application` referencia apenas o próprio Domain e contratos necessários.
 - `Infrastructure` implementa persistência e integrações externas.
 - `API` é a composition root do serviço.
-- `Contracts` contém DTOs de integração, sem regras internas de domí­nio.
+- `Contracts` contém DTOs de integração, sem regras internas de domínio.
 
 Veja `docs/architecture` e `docs/adr` para a documentação versionada.
 
@@ -114,6 +126,7 @@ Com os contêineres ativos, valide o incremento inteiro com:
 .\scripts\test-increment3.ps1
 .\scripts\test-increment4.ps1
 .\scripts\test-increment5.ps1
+.\scripts\test-increment6.ps1
 ```
 
 O teste do Incremento 5 reaproveita o fluxo cumulativo do Incremento 4 e acrescenta readiness, segurança e observabilidade. Para executar o cenário k6 separadamente:
@@ -124,9 +137,11 @@ O teste do Incremento 5 reaproveita o fluxo cumulativo do Incremento 4 e acresce
 
 O Aspire Dashboard mantém autenticação local. Use `docker compose logs aspire-dashboard` para localizar a URL com token de acesso. Consulte `docs/operations/runbook.md` para diagnóstico e deploy.
 
+O teste do Incremento 6 valida o contêiner web, o liveness do portal, os cabeçalhos defensivos, a proteção sem sessão, o login, o cookie `HttpOnly` e as integrações do BFF com Observabilidade, Estoque e Vendas.
+
 ## 🙋 Sobre o Autor
 
-Feito com 💻 e ☕ por [Anderson Lima Araújo](https://www.linkedin.com/in/anderson-araujo-pcd)😊
+Feito com 💻 e ☕ por [Anderson Lima Araújo](https://www.linkedin.com/in/anderson-araujo-pcd)😊  
 Sou desenvolvedor Full Stack com foco em IA, APIs modernas, soluções web escaláveis e interesse em projetos internacionais 🌍
 <p>
     <img align=left margin=10 width=80 src="https://avatars.githubusercontent.com/u/7528140?v=4"/>

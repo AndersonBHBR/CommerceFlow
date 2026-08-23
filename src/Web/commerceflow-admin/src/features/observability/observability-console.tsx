@@ -339,14 +339,20 @@ export function ObservabilityConsole({
                 </div>
               </dl>
 
-              <a
-                href={endpointUrl(service, "health/ready")}
-                target="_blank"
-                rel="noreferrer"
-                className="service-endpoint-link"
-              >
-                Abrir endpoint <ExternalLinkIcon />
-              </a>
+              {service.endpointUrl ? (
+                <a
+                  href={endpointUrl(service, "health/ready")}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="service-endpoint-link"
+                >
+                  Abrir endpoint <ExternalLinkIcon />
+                </a>
+              ) : (
+                <span className="service-endpoint-link is-restricted">
+                  Acesso restrito à rede interna
+                </span>
+              )}
             </article>
           ))}
         </div>

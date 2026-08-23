@@ -49,6 +49,18 @@ Portal administrativo do CommerceFlow desenvolvido com Next.js 16, App Router e 
 - diagnóstico guiado baseado no runbook operacional;
 - navegação responsiva para acompanhamento em desktop e dispositivos móveis.
 
+## Incremento 6.5
+
+- imagem Docker multi-stage baseada em Node.js 22 Alpine;
+- execução standalone com usuário não-root e telemetria do Next.js desativada;
+- portal integrado ao `docker compose` do CommerceFlow;
+- endpoint próprio de liveness para probes e automação;
+- Content Security Policy e cabeçalhos HTTP adicionais;
+- separação entre URLs internas dos serviços e links públicos do navegador;
+- build, lint, audit e imagem do portal validados no GitHub Actions;
+- smoke test autenticado do BFF, Estoque, Vendas e Observabilidade;
+- Deployment, Service e Ingress TLS de referência para Kubernetes.
+
 ## Executar
 
 Com o backend CommerceFlow ativo:

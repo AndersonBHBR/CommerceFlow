@@ -2763,6 +2763,14 @@ a {
   color: var(--teal);
 }
 
+.service-endpoint-link.is-restricted {
+  cursor: default;
+}
+
+.service-endpoint-link.is-restricted:hover {
+  color: var(--slate-500);
+}
+
 .service-endpoint-link svg {
   width: 0.9rem;
 }

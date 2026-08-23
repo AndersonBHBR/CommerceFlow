@@ -7,6 +7,8 @@ import type {
 } from "@/lib/contracts";
 
 const gatewayUrl = process.env.COMMERCEFLOW_GATEWAY_URL ?? "http://localhost:8080";
+const localPublicUrl = (port: number) =>
+  process.env.NODE_ENV === "production" ? "" : `http://localhost:${port}`;
 
 const serviceDefinitions = [
   {
@@ -14,24 +16,31 @@ const serviceDefinitions = [
     name: "API Gateway",
     description: "Entrada única, autorização e rate limiting",
     url: gatewayUrl,
+    publicUrl:
+      process.env.COMMERCEFLOW_GATEWAY_PUBLIC_URL ?? localPublicUrl(8080),
   },
   {
     key: "identity",
     name: "Identity",
     description: "Emissão e validação de credenciais JWT",
     url: process.env.COMMERCEFLOW_IDENTITY_URL ?? "http://localhost:8081",
+    publicUrl:
+      process.env.COMMERCEFLOW_IDENTITY_PUBLIC_URL ?? localPublicUrl(8081),
   },
   {
     key: "sales",
     name: "Vendas",
     description: "Pedidos, idempotência e fluxo de cancelamento",
     url: process.env.COMMERCEFLOW_SALES_URL ?? "http://localhost:8082",
+    publicUrl: process.env.COMMERCEFLOW_SALES_PUBLIC_URL ?? localPublicUrl(8082),
   },
   {
     key: "inventory",
     name: "Estoque",
     description: "Produtos, saldos, reservas e movimentações",
     url: process.env.COMMERCEFLOW_INVENTORY_URL ?? "http://localhost:8083",
+    publicUrl:
+      process.env.COMMERCEFLOW_INVENTORY_PUBLIC_URL ?? localPublicUrl(8083),
   },
 ] as const;
 
@@ -150,7 +159,7 @@ async function observeService(
     key: definition.key,
     name: definition.name,
     description: definition.description,
-    endpointUrl: definition.url.replace(/\/$/, ""),
+    endpointUrl: definition.publicUrl.replace(/\/$/, ""),
     state,
     liveness,
     readiness,
