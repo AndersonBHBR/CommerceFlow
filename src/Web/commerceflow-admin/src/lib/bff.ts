@@ -53,6 +53,15 @@ export function adjustmentListQuery(request: Request): string {
   return copySearchParameters(new URL(request.url).searchParams, ["page", "pageSize"]);
 }
 
+export function orderListQuery(request: Request): string {
+  return copySearchParameters(new URL(request.url).searchParams, [
+    "page",
+    "pageSize",
+    "customerId",
+    "status",
+  ]);
+}
+
 async function forwardGatewayResponse(response: Response): Promise<NextResponse> {
   const body = await response.text();
   const outgoing = new NextResponse(body || null, {
@@ -77,7 +86,7 @@ async function forwardGatewayResponse(response: Response): Promise<NextResponse>
   return outgoing;
 }
 
-export async function inventoryGatewayRequest(
+export async function gatewayBffRequest(
   path: string,
   init: RequestInit = {},
 ): Promise<NextResponse> {
@@ -112,3 +121,5 @@ export async function inventoryGatewayRequest(
     );
   }
 }
+
+export const inventoryGatewayRequest = gatewayBffRequest;

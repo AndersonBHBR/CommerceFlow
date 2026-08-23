@@ -59,3 +59,35 @@ export type PagedResult<T> = {
   totalCount: number;
   totalPages: number;
 };
+
+export type OrderStatus =
+  | "PendingStock"
+  | "Confirmed"
+  | "Rejected"
+  | "Cancelled";
+
+export type OrderItem = {
+  id: string;
+  productId: string;
+  sku: string;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+  totalAmount: number;
+};
+
+export type Order = {
+  id: string;
+  number: string;
+  customerId: string;
+  externalReference: string;
+  status: OrderStatus;
+  statusReason: string | null;
+  totalAmount: number;
+  createdBy: string;
+  createdAtUtc: string;
+  cancelledBy: string | null;
+  cancelledAtUtc: string | null;
+  rowVersion: string;
+  items: OrderItem[];
+};

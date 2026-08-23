@@ -23,6 +23,20 @@ Portal administrativo do CommerceFlow desenvolvido com Next.js 16, App Router e 
 - estados de carregamento, ausência de dados, erro e sucesso;
 - navegação responsiva para desktop e dispositivos móveis.
 
+## Incremento 6.3
+
+- módulo de Vendas integrado ao Gateway;
+- criação de pedidos com múltiplos produtos;
+- catálogo consultado no serviço de Estoque;
+- cálculo de subtotais e total em reais;
+- referência externa idempotente;
+- listagem paginada com filtros por cliente e situação;
+- acompanhamento automático de pedidos aguardando estoque;
+- estados `PendingStock`, `Confirmed`, `Rejected` e `Cancelled`;
+- detalhes completos do pedido e de seus itens;
+- cancelamento com `rowVersion` e liberação compensatória via RabbitMQ;
+- BFF compartilhado para manter o JWT protegido.
+
 ## Executar
 
 Com o backend CommerceFlow ativo:

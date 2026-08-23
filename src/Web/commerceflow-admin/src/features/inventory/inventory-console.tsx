@@ -16,7 +16,7 @@ import {
 } from "@/features/inventory/inventory-api";
 import { AdjustmentHistory } from "@/features/inventory/adjustment-history";
 import { ProductForm } from "@/features/inventory/product-form";
-import { SidePanel } from "@/features/inventory/side-panel";
+import { SidePanel } from "@/components/side-panel";
 import { StockAdjustmentForm } from "@/features/inventory/stock-adjustment-form";
 
 type ActivePanel =

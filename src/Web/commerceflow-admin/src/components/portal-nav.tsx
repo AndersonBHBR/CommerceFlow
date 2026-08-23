@@ -23,6 +23,10 @@ export function PortalNav({ mobile = false }: { mobile?: boolean }) {
           <BoxIcon />
           Estoque
         </Link>
+        <Link href="/pedidos" className={pathname.startsWith("/pedidos") ? "active" : ""}>
+          <OrdersIcon />
+          Pedidos
+        </Link>
       </nav>
     );
   }
@@ -38,11 +42,10 @@ export function PortalNav({ mobile = false }: { mobile?: boolean }) {
         <BoxIcon />
         <span>Estoque</span>
       </Link>
-      <span className="nav-item-disabled" aria-disabled="true">
+      <Link href="/pedidos" className={pathname.startsWith("/pedidos") ? "active" : ""}>
         <OrdersIcon />
         <span>Pedidos</span>
-        <small>em breve</small>
-      </span>
+      </Link>
 
       <span className="nav-caption nav-caption-spaced">Plataforma</span>
       <a href="http://localhost:18888" target="_blank" rel="noreferrer">

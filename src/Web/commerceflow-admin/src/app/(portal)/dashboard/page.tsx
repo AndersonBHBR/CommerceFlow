@@ -110,15 +110,15 @@ export default async function DashboardPage() {
               <OrdersIcon />
             </span>
             <div>
-              <span className="module-state">Preparado para integração</span>
+              <span className="module-state">Integrado à mensageria</span>
               <h3>Operação de vendas</h3>
               <p>
                 Criação, consulta, situação e cancelamento seguro de pedidos.
               </p>
             </div>
-            <span className="module-action">
-              Próximo módulo <ArrowIcon />
-            </span>
+            <Link className="module-action" href="/pedidos">
+              Abrir módulo <ArrowIcon />
+            </Link>
           </article>
         </div>
       </section>
