@@ -8,6 +8,10 @@ type LoginPayload = {
   password?: unknown;
 };
 
+function firstHeaderValue(value: string | null): string | null {
+  return value?.split(",")[0]?.trim() || null;
+}
+
 function isSameOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
   if (!origin) {
@@ -15,7 +19,22 @@ function isSameOrigin(request: Request): boolean {
   }
 
   try {
-    return new URL(origin).host === new URL(request.url).host;
+    const originUrl = new URL(origin);
+    const requestUrl = new URL(request.url);
+    const requestHost =
+      firstHeaderValue(request.headers.get("x-forwarded-host")) ??
+      firstHeaderValue(request.headers.get("host")) ??
+      requestUrl.host;
+    const forwardedProtocol = firstHeaderValue(
+      request.headers.get("x-forwarded-proto"),
+    );
+    const requestProtocol = forwardedProtocol
+      ? `${forwardedProtocol}:`
+      : requestUrl.protocol;
+
+    return (
+      originUrl.host === requestHost && originUrl.protocol === requestProtocol
+    );
   } catch {
     return false;
   }
